@@ -2,6 +2,7 @@ package bencoder
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -174,3 +175,51 @@ func Decoder(str string, start ...*int) (interface{}, error) {
 	return out, nil
 }
 
+func Encoder(benco interface{} ) ([]byte, error) {
+
+	var encoded []byte
+	
+	switch ty := benco.(type) {
+	case int, int64:
+		encoded = append(encoded, 'i')
+		encoded = append(encoded, []byte(strconv.FormatInt(reflect.ValueOf(ty).Int(), 10))...)
+		encoded = append(encoded, 'e')
+	
+	case string:
+		encoded = append(encoded, []byte(strconv.Itoa(len(ty)))...)
+		encoded = append(encoded, ':')
+		encoded = append(encoded, []byte(ty)...)
+
+	case []interface{}:
+		encoded = append(encoded, 'l')
+		for _, item := range ty {
+			encodedItem, err := Encoder(item)
+			if err != nil {
+				return nil, err
+			}
+			encoded = append(encoded, encodedItem...)
+		}
+		encoded = append(encoded, 'e')
+
+	case map[interface{}]interface{}:
+		encoded = append(encoded, 'd')
+		for key, value := range ty {
+			encodedKey, err := Encoder(key)
+			if err != nil {
+				return nil, err
+			}
+			encodedValue, err := Encoder(value)
+			if err != nil {
+				return nil, err
+			}
+			encoded = append(encoded, encodedKey...)
+			encoded = append(encoded, encodedValue...)
+		}
+		encoded = append(encoded, 'e')
+	
+	default:
+		return nil, fmt.Errorf("unsupported data type")
+	}
+
+	return encoded, nil
+}
