@@ -11,11 +11,11 @@ func readInteger(idx *int, str *string, terminator string) (int64, error) {
 	out := ""
 	lim := strings.Index((*str)[*idx:], terminator)
 	if lim == -1 {
-		return -1, fmt.Errorf("%s","error of terminator wasn't found")
+		return -1, fmt.Errorf("%s", "error of terminator wasn't found")
 	}
 	lim = lim + (*idx)
 	out = (*str)[*idx:lim]
-	*idx = lim 
+	*idx = lim
 	integer, err := strconv.ParseInt(out, 10, 64)
 	if err != nil {
 		return -1, err
@@ -25,7 +25,7 @@ func readInteger(idx *int, str *string, terminator string) (int64, error) {
 
 func readBulkString(idx *int, str *string) (interface{}, error) {
 	out := ""
-	length, err := readInteger(idx, str,":")
+	length, err := readInteger(idx, str, ":")
 	if err != nil {
 		return "", err
 	}
@@ -35,16 +35,15 @@ func readBulkString(idx *int, str *string) (interface{}, error) {
 	(*idx)++
 	lim := (*idx) + int(length)
 	if lim > len(*str) {
-		return "", fmt.Errorf("%s","error of string lenght isn't enough")
+		return "", fmt.Errorf("%s", "error of string lenght isn't enough")
 	}
 	out = (*str)[*idx:lim]
 	if out == "-1" {
 		return "", nil
 	}
-	*idx = lim -1
+	*idx = lim - 1
 	return out, nil
 }
-
 
 func readMap(idx *int, str *string) (map[interface{}]interface{}, error) {
 	var out = make(map[interface{}]interface{})
@@ -53,7 +52,7 @@ func readMap(idx *int, str *string) (map[interface{}]interface{}, error) {
 		var val interface{}
 		if (*str)[*idx] == 'i' {
 			(*idx)++
-			integer, err := readInteger(idx, str,"e")
+			integer, err := readInteger(idx, str, "e")
 			if err != nil {
 				return nil, err
 			}
@@ -62,7 +61,7 @@ func readMap(idx *int, str *string) (map[interface{}]interface{}, error) {
 			if i%2 == 1 {
 				out[prev] = val
 			}
-	
+
 			prev = val
 			continue
 		}
@@ -76,7 +75,7 @@ func readMap(idx *int, str *string) (map[interface{}]interface{}, error) {
 			if i%2 == 1 {
 				out[prev] = val
 			}
-	
+
 			prev = val
 			continue
 		}
@@ -91,11 +90,11 @@ func readMap(idx *int, str *string) (map[interface{}]interface{}, error) {
 			if i%2 == 1 {
 				out[prev] = val
 			}
-	
+
 			prev = val
 			continue
 		}
-		
+
 		if (*str)[*idx] == 'd' {
 			(*idx)++
 			respMap, err := readMap(idx, str)
@@ -107,7 +106,7 @@ func readMap(idx *int, str *string) (map[interface{}]interface{}, error) {
 			if i%2 == 1 {
 				out[prev] = val
 			}
-	
+
 			prev = val
 			continue
 		}
@@ -128,7 +127,7 @@ func Decoder(str string, start ...*int) (interface{}, error) {
 	for ; idx < len(str); idx++ {
 		if str[idx] == 'i' {
 			idx++
-			integer, err := readInteger(&idx, &str,"e")
+			integer, err := readInteger(&idx, &str, "e")
 			if err != nil {
 				return nil, err
 			}
@@ -152,7 +151,7 @@ func Decoder(str string, start ...*int) (interface{}, error) {
 			out = append(out, array)
 			continue
 		}
-		
+
 		if str[idx] == 'd' {
 			idx++
 			respMap, err := readMap(&idx, &str)
@@ -175,16 +174,17 @@ func Decoder(str string, start ...*int) (interface{}, error) {
 	return out, nil
 }
 
-func Encoder(benco interface{} ) ([]byte, error) {
+// Encoder reads an interface, returning an byte array of the bencoded interface
+func Encoder(benco interface{}) ([]byte, error) {
 
 	var encoded []byte
-	
+
 	switch ty := benco.(type) {
 	case int, int64:
 		encoded = append(encoded, 'i')
 		encoded = append(encoded, []byte(strconv.FormatInt(reflect.ValueOf(ty).Int(), 10))...)
 		encoded = append(encoded, 'e')
-	
+
 	case string:
 		encoded = append(encoded, []byte(strconv.Itoa(len(ty)))...)
 		encoded = append(encoded, ':')
@@ -216,7 +216,7 @@ func Encoder(benco interface{} ) ([]byte, error) {
 			encoded = append(encoded, encodedValue...)
 		}
 		encoded = append(encoded, 'e')
-	
+
 	default:
 		return nil, fmt.Errorf("unsupported data type")
 	}
