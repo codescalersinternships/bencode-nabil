@@ -23,14 +23,14 @@ func readInteger(idx *int, str *string, terminator string) (int64, error) {
 	return integer, nil
 }
 
-func readBulkString(idx *int, str *string) (interface{}, error) {
+func readBulkString(idx *int, str *string) (string, error) {
 	out := ""
 	length, err := readInteger(idx, str, ":")
 	if err != nil {
 		return "", err
 	}
 	if length == -1 {
-		return nil, nil
+		return "", nil
 	}
 	(*idx)++
 	lim := (*idx) + int(length)
