@@ -3,6 +3,7 @@ package bencoder
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -201,14 +202,19 @@ func Encoder(benco interface{}) ([]byte, error) {
 		}
 		encoded = append(encoded, 'e')
 
-	case map[interface{}]interface{}:
+	case map[string]string:
 		encoded = append(encoded, 'd')
-		for key, value := range ty {
+		var keyArr []string
+		for key := range ty {
+			keyArr = append(keyArr, key)
+		}
+		slices.Sort(keyArr)
+		for _, key := range keyArr {
 			encodedKey, err := Encoder(key)
 			if err != nil {
 				return nil, err
 			}
-			encodedValue, err := Encoder(value)
+			encodedValue, err := Encoder(ty[key])
 			if err != nil {
 				return nil, err
 			}
