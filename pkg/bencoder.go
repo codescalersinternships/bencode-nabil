@@ -202,7 +202,7 @@ func Encoder(benco interface{}) ([]byte, error) {
 		}
 		encoded = append(encoded, 'e')
 
-	case map[string]string:
+	case map[string]interface{}:
 		encoded = append(encoded, 'd')
 		var keyArr []string
 		for key := range ty {
