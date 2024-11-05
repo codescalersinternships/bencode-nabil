@@ -202,11 +202,11 @@ func Encoder(benco interface{}) ([]byte, error) {
 		}
 		encoded = append(encoded, 'e')
 
-	case map[string]interface{}:
+	case map[interface{}]interface{}:
 		encoded = append(encoded, 'd')
 		var keyArr []string
 		for key := range ty {
-			keyArr = append(keyArr, key)
+			keyArr = append(keyArr, key.(string))
 		}
 		slices.Sort(keyArr)
 		for _, key := range keyArr {
