@@ -1,6 +1,7 @@
 package bencoder
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -87,7 +88,9 @@ func TestDecoder(t *testing.T) {
 			if test.expectedError {
 				assert.Error(t, err)
 			}
-			assert.Equal(t, test.expected, got)
+			if ok := reflect.DeepEqual( test.expected, got); !ok {
+				t.Fail()
+			}
 		})
 	}
 }
